@@ -1,0 +1,100 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ChromeLater Settings</title>
+    <style>
+      body {
+        background: url("bg.jpg") repeat-x;
+        -webkit-text-size-adjust: none;
+      }
+      div.main {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -150px;
+        margin-left: -250px;
+        -webkit-border-radius: 30px;
+        border: 2px solid #DD66AA;
+        background-color: #FFFFDD;
+        width: 500px;
+        height: 300px;
+        display: inline-block;
+      }
+      input {
+        -webkit-border-radius: 10px;
+        border: 1px solid #ACACAC;
+        background-color: #EFEFEF;
+        padding: 5px;
+        margin: 5px;
+        font-size: 13pt;
+      }
+      span {
+        font-family: "Arial";
+      }
+      h1 {
+        # font-family: "Helvetica";
+      }
+      h3#msgbox {
+        display: none;
+      }
+    </style>
+    <script type="text/javascript" charset="utf-8" src="jquery.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      $(function() {
+        if (localStorage.user) {
+          $("#login").val(localStorage.user);
+        }
+      });
+
+      function go() {
+        var user = $("#login").val();
+        var pass = $("#passwd").val();
+        $("#msgbox").html("Logging in... <img src=\"loading.gif\" />");
+        $("#msgbox").show(100);
+        $.get(
+          "https://chromelater.heroku.com/auth",
+          {
+            "user": user,
+            "pass": pass
+          },
+          function(data, textStatus){
+            if (data.match("login-ok")) {
+              localStorage.feedUrl = data.substring(9);
+              localStorage.user = user;
+              chrome.extension.sendRequest({request: "update"});
+
+              $("#msgbox").hide(100);
+              $("#msgbox").html("<img src=\"check.png\" /> Account Verified!");
+              $("#msgbox").show(100);
+            }
+            else if (data.match("login-fail")) {
+              $("#msgbox").hide(100);
+              $("#msgbox").html("<span style=\"color: Red;\">Unauthorized!</span> Please Try again.");
+              $("#msgbox").show(100);
+              $("#passwd").val("");
+            }
+            else {
+              $("#msgbox").hide(100);
+              $("#msgbox").html("Unknown Error :(");
+              $("#msgbox").show(100);
+            }
+          },
+          "text"
+        );
+        return false;
+      }
+    </script>
+  </head>
+  <body style="text-align: center">
+      <div class="main">
+      <h1>ChromeLater Options</h1>
+      <h3 id="msgbox">&nbsp;</h3>
+      <img src="icon_128.png" style="float: left; padding-top: 10px; padding-left: 50px; width: 100px" />
+      <form onsubmit="return go();" style="font-size: 13pt">
+        <p><span>Username:</span><input type="text" id="login" name="username" size="15" /></p>
+        <p><span>Password:</span><input type="password" id="passwd" name="password" size="15" /></p>
+        <p><input type="submit" value="OK !" /></p>
+      </div>
+      <div>
+  </body>
+</html>

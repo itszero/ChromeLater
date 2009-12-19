@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<script type="text/javascript" charset="utf-8" src="jquery.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		var unreads = {};
+		var loading = false;
+		var logged_in = !(localStorage.feedUrl == null);
+		var shownBar = false;
+	
+		chrome.extension.onRequest.addListener(
+			function(request, sender, sendResponse) {
+			    if (request == "unreads")
+				{
+					if (loading || !logged_in) sendResponse({'status': "later"});
+					else sendResponse(unreads);
+				}
+				else if (request == "update")
+				{
+					doUpdate();
+					sendResponse({'status': 'ok'});
+				}
+				else if (request == "queue_update")
+				{
+					window.setTimeout(function() { doUpdate(); }, 100);
+					sendResponse({'status': 'ok'});
+				}
+				else if (request == "isBarShown")
+				{
+					sendResponse(shownBar);
+				}
+			}
+		);
+		
+		chrome.browserAction.onClicked.addListener(function(tab) {
+			if (!logged_in)
+				chrome.tabs.create({url: chrome.extension.getURL("options.html")});
+			else
+			{
+				chrome.tabs.getSelected(null, function(tab) {
+					chrome.tabs.sendRequest(tab.id, "switchbar", function(obj) {
+						shownBar = obj.shownBar;
+					});
+				});
+			}
+		});
+		
+		function doUpdate()
+		{
+			chrome.browserAction.setBadgeText({text: "..."});
+			loading = true;
+			logged_in = !(localStorage.feedUrl == null);
+			if (!logged_in)
+			{
+				chrome.browserAction.setBadgeText({text: "?"});
+				loading = false;
+			}
+			else
+			{
+				$.get(
+					"https://chromelater.heroku.com/unreads",
+					 {'feed': localStorage.feedUrl.replace("http://www.instapaper.com/rss/", "")},
+					function(data, status)
+					{
+						loading = false;
+						unreads = data;
+						unreads['status'] = 'ok';
+						chrome.browserAction.setBadgeBackgroundColor({color: [255, 0, 0, 200]});
+						chrome.browserAction.setBadgeText({text: unreads.count.toString()});
+					}, "json"
+				);
+			}
+			setTimeout(doUpdate, 60 * 5 * 1000);
+		}
+		
+		doUpdate();
+	</script>
+</html>

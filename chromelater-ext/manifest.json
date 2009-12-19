@@ -1,0 +1,24 @@
+{
+	"name": "ChromeLater",
+	"version": "1.0",
+	"icon": "icon_19.png",
+	"background_page": "chromelater_bg.html",
+	"options_page": "options.html",
+	"browser_action": {
+		"default_icon": "icon_19.png",
+		"default_title": "ChromeLater"
+	},
+	"content_scripts": [
+		{
+			"matches": ["http://*/*"],
+			"css": ["chromelater.css"],
+			"js": ["jquery.js", "chromelater_content.js"],
+			"run_at": "document_start"
+		}
+	],
+	"permissions": [
+		"https://www.instapaper.com/",
+		"https://chromelater.heroku.com/",
+		"tabs"
+	]
+}

@@ -1,0 +1,10 @@
+*.log
+.DS_Store
+/pkg
+/book
+/doc/api
+/doc/*.html
+.#*
+\#*
+.emacs*
+*.swp
