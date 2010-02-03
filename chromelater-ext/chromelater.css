@@ -27,7 +27,7 @@
 }
 
 #chromelater_bar {
-	position: absolute;
+	position: fixed;
 	left: 0px;
 	top: 0px;
 	width: 100%;
@@ -42,7 +42,7 @@
 	text-align: left;
 }
 
-#chromelater_bar a, a:visited {
+#chromelater_bar a, #chromelater_bar a:visited {
 	color: #CCC !important;
 	background-color: transparent !important;
 }
